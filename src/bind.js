@@ -1,5 +1,5 @@
 var _curry2 = require('./internal/_curry2');
-var arity = require('./arity');
+var _meta = require('./internal/_meta');
 
 
 /**
@@ -11,14 +11,13 @@ var arity = require('./arity');
  * @memberOf R
  * @category Function
  * @category Object
- * @see R.partial
  * @sig (* -> *) -> {*} -> (* -> *)
  * @param {Function} fn The function to bind to context
  * @param {Object} thisObj The context to bind `fn` to
  * @return {Function} A function that will execute in the context of `thisObj`.
  */
 module.exports = _curry2(function bind(fn, thisObj) {
-  return arity(fn.length, function() {
-    return fn.apply(thisObj, arguments);
-  });
+    return _meta.set(function() {
+        return fn.apply(thisObj, arguments);
+    }, fn);
 });

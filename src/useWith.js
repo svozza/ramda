@@ -1,5 +1,5 @@
+var _meta = require('./internal/_meta');
 var _slice = require('./internal/_slice');
-var arity = require('./arity');
 var curry = require('./curry');
 
 
@@ -17,7 +17,7 @@ var curry = require('./curry');
  * @func
  * @memberOf R
  * @category Function
- * @sig (x1 -> x2 -> ... -> z) -> ((a -> x1), (b -> x2), ...) -> (a -> b -> ... -> z)
+ * @sig ((* -> *), (* -> *)...) -> (* -> *)
  * @param {Function} fn The function to wrap.
  * @param {...Function} transformers A variable number of transformer functions
  * @return {Function} The wrapped function.
@@ -29,14 +29,15 @@ var curry = require('./curry');
  *      var byAge = R.useWith(R.filter, R.propEq('age'), R.identity);
  *
  *      var kids = [
- *        {name: 'Abbie', age: 6},
- *        {name: 'Brian', age: 5},
- *        {name: 'Chris', age: 6},
- *        {name: 'David', age: 4},
- *        {name: 'Ellie', age: 5}
+ *          {name: 'Abbie', age: 6},
+ *          {name: 'Brian', age: 5},
+ *          {name: 'Chris', age: 6},
+ *          {name: 'David', age: 4},
+ *          {name: 'Ellie', age: 5}
  *      ];
  *
  *      byAge(5, kids); //=> [{name: 'Brian', age: 5}, {name: 'Ellie', age: 5}]
+ *
  *
  *      // Example 2:
  *
@@ -67,14 +68,13 @@ var curry = require('./curry');
  *      addDoubleAndSquare(10, 5, 100); //=> 145
  */
 module.exports = curry(function useWith(fn /*, transformers */) {
-  var transformers = _slice(arguments, 1);
-  var tlen = transformers.length;
-  return curry(arity(tlen, function() {
-    var args = [], idx = 0;
-    while (idx < tlen) {
-      args[idx] = transformers[idx](arguments[idx]);
-      idx += 1;
-    }
-    return fn.apply(this, args.concat(_slice(arguments, tlen)));
-  }));
+    var transformers = _slice(arguments, 1);
+    var tlen = transformers.length;
+    return curry(_meta.set(function() {
+        var args = [], idx = -1;
+        while (++idx < tlen) {
+            args[idx] = transformers[idx](arguments[idx]);
+        }
+        return fn.apply(this, args.concat(_slice(arguments, tlen)));
+    }, fn, tlen));
 });

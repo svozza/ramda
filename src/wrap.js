@@ -1,6 +1,7 @@
 var _concat = require('./internal/_concat');
 var _curry2 = require('./internal/_curry2');
-var curryN = require('./curryN');
+var _meta = require('./internal/_meta');
+var curry = require('./curry');
 
 
 /**
@@ -19,17 +20,18 @@ var curryN = require('./curryN');
  *      var greet = function(name) {return 'Hello ' + name;};
  *
  *      var shoutedGreet = R.wrap(greet, function(gr, name) {
- *        return gr(name).toUpperCase();
+ *          return gr(name).toUpperCase();
  *      });
  *      shoutedGreet("Kathy"); //=> "HELLO KATHY"
  *
  *      var shortenedGreet = R.wrap(greet, function(gr, name) {
- *        return gr(name.substring(0, 3));
+ *          return gr(name.substring(0, 3));
  *      });
  *      shortenedGreet("Robert"); //=> "Hello Rob"
+ *
  */
 module.exports = _curry2(function wrap(fn, wrapper) {
-  return curryN(fn.length, function() {
-    return wrapper.apply(this, _concat([fn], arguments));
-  });
+    return curry(_meta.set(function() {
+        return wrapper.apply(this, _concat([fn], arguments));
+    }, fn));
 });
