@@ -37,10 +37,11 @@ module.exports = (function() {
       case 'string':
       case 'number':
         // distinguish between +0 and -0
-        if (item === 0 && !set._items['-0'] && 1 / item === -Infinity) {
-          if (shouldAdd) {
-            set._items['-0'] = true;
+        if (item === 0 && 1 / item === -Infinity) {
+          if (set._items['-0'] === true) {
+            return false;
           }
+          set._items['-0'] = true;
           return shouldAdd;
         }
         // these types can all utilise Set
